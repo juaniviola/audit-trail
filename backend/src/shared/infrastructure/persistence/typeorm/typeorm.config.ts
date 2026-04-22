@@ -11,7 +11,7 @@ export const getTypeOrmConfig = (): DataSourceOptions => {
     username: process.env.DB_USERNAME || 'postgres',
     password: process.env.DB_PASSWORD || 'postgres',
     database: process.env.DB_DATABASE || 'audit_trail',
-    entities: [__dirname + '/../../../**/*.entity{.ts,.js}'],
+    entities: [__dirname + '/../../../../**/*.entity{.ts,.js}'],
     migrations: [__dirname + '/migrations/*.{ts,js}'],
     migrationsTableName: 'migrations',
     synchronize: false,
