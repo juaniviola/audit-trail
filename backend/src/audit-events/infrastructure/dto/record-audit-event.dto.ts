@@ -104,7 +104,25 @@ export class RecordAuditEventDto {
   @Type(() => AuditEventChangeDto)
   changes?: AuditEventChangeDto[] | null;
 
-  @ApiPropertyOptional({ type: Object })
+  @ApiPropertyOptional({
+    type: Object,
+    description:
+      'Structured HTTP/transport context (ip, userAgent, method, path, geo, ...). Separate from domain metadata.',
+    example: {
+      ip: '203.0.113.4',
+      userAgent: 'Mozilla/5.0',
+      method: 'POST',
+      path: '/v1/orders',
+      route: '/v1/orders',
+      origin: 'https://app.example.com',
+      geoCountry: 'AR',
+    },
+  })
+  @IsOptional()
+  @IsObject()
+  requestContext?: Record<string, unknown> | null;
+
+  @ApiPropertyOptional({ type: Object, description: 'Free-form domain metadata. Do NOT include HTTP context here.' })
   @IsOptional()
   @IsObject()
   metadata?: Record<string, unknown> | null;

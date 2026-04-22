@@ -19,6 +19,7 @@ export class AuditEventsPostController {
       ...dto,
       occurredAt: new Date(dto.occurredAt),
       ingestedAt: dto.ingestedAt ? new Date(dto.ingestedAt) : undefined,
+      requestContext: dto.requestContext ?? null,
     });
     return auditEvent.toResponseDetail();
   }

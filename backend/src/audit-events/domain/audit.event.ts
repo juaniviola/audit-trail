@@ -15,6 +15,7 @@ import { AuditEventIngestedAt } from './audit.event.ingestedAt';
 import { AuditEventMetadata } from './audit.event.metadata';
 import { AuditEventOccurredAt } from './audit.event.occurredAt';
 import { AuditEventOrganizationId } from './audit.event.organizationId';
+import { AuditEventRequestContext, AuditEventRequestContextShape } from './audit.event.requestContext';
 import { AuditEventRequestId } from './audit.event.requestId';
 import { AuditEventResourceId } from './audit.event.resourceId';
 import { AuditEventResourceType } from './audit.event.resourceType';
@@ -42,6 +43,7 @@ export type AuditEventProps = {
   before?: AuditEventBefore;
   after?: AuditEventAfter;
   changes?: AuditEventChanges;
+  requestContext?: AuditEventRequestContext;
   metadata?: AuditEventMetadata;
 };
 
@@ -65,6 +67,7 @@ export type AuditEventPrimitiveProps = {
   before?: Record<string, unknown> | null;
   after?: Record<string, unknown> | null;
   changes?: AuditEventChange[] | null;
+  requestContext?: AuditEventRequestContextShape | null;
   metadata?: Record<string, unknown> | null;
 };
 
@@ -111,6 +114,7 @@ export class AuditEvent extends AggregateRoot {
   private before?: AuditEventBefore;
   private after?: AuditEventAfter;
   private changes?: AuditEventChanges;
+  private requestContext?: AuditEventRequestContext;
   private metadata?: AuditEventMetadata;
 
   private constructor(props: AuditEventProps) {
@@ -134,6 +138,7 @@ export class AuditEvent extends AggregateRoot {
     this.before = props.before;
     this.after = props.after;
     this.changes = props.changes;
+    this.requestContext = props.requestContext;
     this.metadata = props.metadata;
   }
 
@@ -161,6 +166,7 @@ export class AuditEvent extends AggregateRoot {
       before: input.before ? AuditEventBefore.create(input.before) : undefined,
       after: input.after ? AuditEventAfter.create(input.after) : undefined,
       changes: input.changes ? AuditEventChanges.create(input.changes) : undefined,
+      requestContext: input.requestContext ? AuditEventRequestContext.create(input.requestContext) : undefined,
       metadata: input.metadata ? AuditEventMetadata.create(input.metadata) : undefined,
     });
 
@@ -189,6 +195,7 @@ export class AuditEvent extends AggregateRoot {
       before: props.before ? AuditEventBefore.create(props.before) : undefined,
       after: props.after ? AuditEventAfter.create(props.after) : undefined,
       changes: props.changes ? AuditEventChanges.create(props.changes) : undefined,
+      requestContext: props.requestContext ? AuditEventRequestContext.create(props.requestContext) : undefined,
       metadata: props.metadata ? AuditEventMetadata.create(props.metadata) : undefined,
     });
   }
@@ -229,12 +236,20 @@ export class AuditEvent extends AggregateRoot {
     return this.actorType.getValue();
   }
 
+  public getCorrelationId(): string | null {
+    return this.correlationId?.getValue() ?? null;
+  }
+
   public getOccurredAt(): Date {
     return this.occurredAt.getValue();
   }
 
   public getIngestedAt(): Date {
     return this.ingestedAt.getValue();
+  }
+
+  public getRequestContext(): AuditEventRequestContextShape | null {
+    return this.requestContext?.getValue() ?? null;
   }
 
   public toPrimitives(): AuditEventPrimitiveProps {
@@ -258,6 +273,7 @@ export class AuditEvent extends AggregateRoot {
       before: this.before?.getValue() ?? null,
       after: this.after?.getValue() ?? null,
       changes: this.changes?.getValue() ?? null,
+      requestContext: this.requestContext?.getValue() ?? null,
       metadata: this.metadata?.getValue() ?? null,
     };
   }

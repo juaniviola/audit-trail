@@ -33,7 +33,14 @@ export class AuditEventObjectMother {
       before: null,
       after: { status: 'created', total: 100 },
       changes: [{ path: 'status', before: null, after: 'created' }],
-      metadata: { ip: '127.0.0.1', userAgent: 'jest' },
+      requestContext: {
+        ip: '127.0.0.1',
+        userAgent: 'jest',
+        method: 'POST',
+        path: '/v1/orders',
+        route: '/v1/orders',
+      },
+      metadata: { channel: 'web' },
     };
   }
 

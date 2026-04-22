@@ -1,6 +1,7 @@
 import { Column, Entity, Index, PrimaryColumn } from 'typeorm';
 
 import { AuditEventChange } from '../../../domain/audit.event.changes';
+import { AuditEventRequestContextShape } from '../../../domain/audit.event.requestContext';
 
 @Entity({ name: 'audit_events' })
 @Index('idx_audit_events_resource', ['resourceType', 'resourceId'])
@@ -65,6 +66,9 @@ export class AuditEventsEntity {
 
   @Column({ name: 'changes', type: 'jsonb', nullable: true })
   changes: AuditEventChange[] | null;
+
+  @Column({ name: 'request_context', type: 'jsonb', nullable: true })
+  requestContext: AuditEventRequestContextShape | null;
 
   @Column({ name: 'metadata', type: 'jsonb', nullable: true })
   metadata: Record<string, unknown> | null;

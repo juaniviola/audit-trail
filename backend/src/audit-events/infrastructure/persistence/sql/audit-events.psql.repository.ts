@@ -72,6 +72,7 @@ export class AuditEventsPsqlRepository implements AuditEventsRepository {
       before: row.before,
       after: row.after,
       changes: row.changes,
+      requestContext: row.requestContext,
       metadata: row.metadata,
     };
   }
