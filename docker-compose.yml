@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: audit-trail-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: audit_trail
+    ports:
+      - '5432:5432'
+    volumes:
+      - audit_trail_pg_data:/var/lib/postgresql/data
+
+volumes:
+  audit_trail_pg_data:

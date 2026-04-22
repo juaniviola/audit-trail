@@ -1,0 +1,15 @@
+{
+  "name": "audit-trail",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": ["backend", "frontend"],
+  "scripts": {
+    "backend:dev": "yarn --cwd backend start:dev",
+    "backend:test": "yarn --cwd backend test",
+    "backend:build": "yarn --cwd backend build",
+    "frontend:dev": "yarn --cwd frontend dev",
+    "frontend:build": "yarn --cwd frontend build",
+    "db:up": "docker compose up -d postgres",
+    "db:down": "docker compose down"
+  }
+}
