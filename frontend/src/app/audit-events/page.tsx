@@ -2,24 +2,27 @@
 
 import { format } from 'date-fns';
 import Link from 'next/link';
-import { useMemo, useState } from 'react';
+import { useDeferredValue, useMemo, useState } from 'react';
 
 import useGetAuditEventsQuery from '@/modules/audit-events/application/getAuditEventsQuery';
-import Filter from '@/modules/shared/domain/filter';
 
 import { actionTone, actorTone, Badge } from '@/components/ui/Badge';
+import {
+  AuditEventFiltersState,
+  buildFilters,
+  EMPTY_FILTERS,
+  FiltersPanel,
+} from './_Filters';
 import { auditEventRepository } from './_repository';
 
 const PAGE_SIZE = 25;
 
 export default function AuditEventsPage() {
-  const [search, setSearch] = useState('');
+  const [filterState, setFilterState] = useState<AuditEventFiltersState>(EMPTY_FILTERS);
   const [page, setPage] = useState(0);
 
-  const filters = useMemo<Filter[]>(() => {
-    if (!search.trim()) return [];
-    return [{ field: 'event_name', operator: 'CONTAINS', value: search.trim() }];
-  }, [search]);
+  const deferredFilterState = useDeferredValue(filterState);
+  const filters = useMemo(() => buildFilters(deferredFilterState), [deferredFilterState]);
 
   const { data, isLoading, isError, isFetching } = useGetAuditEventsQuery({
     repository: auditEventRepository,
@@ -30,6 +33,11 @@ export default function AuditEventsPage() {
   const total = data?.total ?? 0;
   const events = data?.data ?? [];
   const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+
+  const handleFilterChange = (next: AuditEventFiltersState) => {
+    setPage(0);
+    setFilterState(next);
+  };
 
   return (
     <div className="space-y-6">
@@ -43,11 +51,8 @@ export default function AuditEventsPage() {
 
         <div className="flex items-center gap-2">
           <input
-            value={search}
-            onChange={(e) => {
-              setPage(0);
-              setSearch(e.target.value);
-            }}
+            value={filterState.eventName}
+            onChange={(e) => handleFilterChange({ ...filterState, eventName: e.target.value })}
             placeholder="Search by event name..."
             className="h-9 w-72 rounded-md border border-border bg-muted/40 px-3 text-sm outline-none placeholder:text-muted-foreground focus:border-primary"
           />
@@ -59,6 +64,8 @@ export default function AuditEventsPage() {
           </Link>
         </div>
       </div>
+
+      <FiltersPanel value={filterState} onChange={handleFilterChange} />
 
       <div className="overflow-hidden rounded-lg border border-border">
         <table className="w-full text-sm">
@@ -91,7 +98,7 @@ export default function AuditEventsPage() {
             {!isLoading && !isError && events.length === 0 && (
               <tr>
                 <td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">
-                  No audit events recorded yet.
+                  No audit events match the current filters.
                 </td>
               </tr>
             )}
