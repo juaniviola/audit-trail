@@ -2,7 +2,7 @@
 
 Monorepo for the Audit Trail service, modeled after the MBItrading DDD layout.
 
-- `backend/` — NestJS 11 + TypeORM + PostgreSQL, structured in bounded contexts (shared kernel, audit events).
+- `backend/` — NestJS 11 + TypeORM + PostgreSQL, structured in bounded contexts (shared kernel, audit events, request logs).
 - `frontend/` — Next.js 15 + React 19, same DDD module split (domain / application / infrastructure).
 
 ## Quick start
@@ -33,9 +33,13 @@ The `AuditEvent` aggregate lives in `backend/src/audit-events/domain/audit.event
 captures `id`, `sourceApp`, `sourceEnv`, `eventName`, `action`, `resourceType`, `resourceId`,
 `organizationId`, `actorType` (`user` | `system` | `service` | `api_key`), `actorId`,
 `actorLabel`, `requestId`, `correlationId`, `causationId`, `occurredAt`, `ingestedAt`,
-`before`, `after`, `changes[]` and `metadata`. Records are immutable; the only mutation is
-`AuditEvent.record(...)` which emits an `audit-events.recorded` domain event through the
-in-memory event bus.
+`before`, `after`, `changes[]`, `requestContext` and `metadata`. Records are immutable; the
+only mutation is `AuditEvent.record(...)` which emits an `audit-events.recorded` domain event
+through the in-memory event bus.
+
+`requestContext` is a first-class VO separated from `metadata` so transport-level data
+(`ip`, `userAgent`, `method`, `path`, `route`, `origin`, `referer`, `geoCountry`, `geoCity`,
+`clientId`, ...) never pollutes the domain metadata bag.
 
 ### HTTP API (versioned under `/v1`)
 
@@ -44,6 +48,34 @@ in-memory event bus.
 | POST   | `/audit-events`       | Record a new audit event                     |
 | GET    | `/audit-events`       | Search with criteria + pagination            |
 | GET    | `/audit-events/:id`   | Fetch full detail (incl. before/after/diff)  |
+
+## Request logs
+
+Complementary bounded context: `backend/src/request-logs`. Centralized intake for transport-
+level request logs sent by **external** services (success **and** failure). Paired with
+`audit-events` through `correlationId`, it reconstructs "what was attempted" versus "what
+actually happened".
+
+> This app does **not** auto-log its own inbound traffic. It is a receiver for external
+> emitters — every other service ships its own HTTP-level logs here via
+> `POST /v1/request-logs`. Emitters are responsible for redaction, truncation and
+> propagating `x-correlation-id` / `x-request-id` headers shared with any `audit-events`
+> they emit.
+
+The `RequestLog` aggregate captures `method`, `path`, `route`, `status`, `durationMs`,
+`sourceApp`, `sourceEnv`, `actorType` (`user` | `system` | `service` | `api_key` |
+`anonymous`), `actorId`, `actorLabel`, `organizationId`, `requestId`, `correlationId`, `ip`,
+`userAgent`, `referer`, `origin`, `requestBody`, `responseBody`, `query`, `errorCode`,
+`errorMessage`, `occurredAt`, `ingestedAt`. Sensitive fields should already be redacted by
+the emitter before POSTing.
+
+### HTTP API
+
+| Method | Path                  | Description                                  |
+| ------ | --------------------- | -------------------------------------------- |
+| POST   | `/request-logs`       | Record a request log (from external services) |
+| GET    | `/request-logs`       | Search with criteria + pagination            |
+| GET    | `/request-logs/:id`   | Fetch full detail                            |
 
 ### Useful scripts
 
