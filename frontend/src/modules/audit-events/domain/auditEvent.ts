@@ -6,6 +6,20 @@ export interface IAuditEventChange {
   after: unknown;
 }
 
+export interface IAuditEventRequestContext {
+  ip?: string;
+  userAgent?: string;
+  method?: string;
+  path?: string;
+  route?: string;
+  origin?: string;
+  referer?: string;
+  geoCountry?: string;
+  geoCity?: string;
+  clientId?: string;
+  [key: string]: unknown;
+}
+
 export interface IAuditEventBase {
   id: string;
   sourceApp: string;
@@ -29,6 +43,7 @@ export interface IAuditEventDetail extends IAuditEventBase {
   before?: Record<string, unknown> | null;
   after?: Record<string, unknown> | null;
   changes?: IAuditEventChange[] | null;
+  requestContext?: IAuditEventRequestContext | null;
   metadata?: Record<string, unknown> | null;
 }
 
@@ -52,5 +67,6 @@ export interface RecordAuditEventPayload {
   before?: Record<string, unknown> | null;
   after?: Record<string, unknown> | null;
   changes?: IAuditEventChange[] | null;
+  requestContext?: IAuditEventRequestContext | null;
   metadata?: Record<string, unknown> | null;
 }

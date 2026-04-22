@@ -25,6 +25,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
                 <Link className="hover:text-foreground" href="/audit-events">
                   Events
                 </Link>
+                <Link className="hover:text-foreground" href="/request-logs">
+                  Request logs
+                </Link>
                 <Link className="hover:text-foreground" href="/audit-events/new">
                   Record
                 </Link>

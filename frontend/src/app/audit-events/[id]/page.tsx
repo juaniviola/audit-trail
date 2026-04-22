@@ -96,6 +96,19 @@ export default function AuditEventDetailPage() {
         <PayloadCard title="After" data={event.after} />
       </div>
 
+      {event.requestContext && Object.keys(event.requestContext).length > 0 && (
+        <Card title="Request context">
+          <div className="grid grid-cols-2 gap-2 text-sm">
+            {Object.entries(event.requestContext).map(([key, value]) => (
+              <div key={key} className="flex justify-between gap-4 border-b border-border/40 py-1 last:border-0">
+                <span className="text-muted-foreground">{key}</span>
+                <span className="font-mono text-xs break-all">{String(value)}</span>
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
+
       {event.metadata && Object.keys(event.metadata).length > 0 && (
         <PayloadCard title="Metadata" data={event.metadata} />
       )}
