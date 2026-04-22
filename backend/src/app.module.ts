@@ -7,6 +7,7 @@ import { AppController } from './app.controller';
 import { AuditEventsModule } from './audit-events/audit-events.module';
 import configuration from './config/configuration';
 import { HealthModule } from './health/health.module';
+import { RequestLogsModule } from './request-logs/request-logs.module';
 import { AllExceptionsFilter } from './shared/infrastructure/filters/all.exceptions.filter';
 import { SharedModule } from './shared/shared.module';
 
@@ -35,6 +36,7 @@ import { SharedModule } from './shared/shared.module';
     SharedModule,
     HealthModule,
     AuditEventsModule,
+    RequestLogsModule,
   ],
   controllers: [AppController],
   providers: [

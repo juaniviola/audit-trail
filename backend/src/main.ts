@@ -28,6 +28,7 @@ async function bootstrap() {
     .setDescription('Centralized audit event ingestion and querying.')
     .setVersion('1.0')
     .addTag('audit-events')
+    .addTag('request-logs')
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup(process.env.SWAGGER_PATH || 'documentation', app, document);
