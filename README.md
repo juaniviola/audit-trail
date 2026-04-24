@@ -84,6 +84,74 @@ docker run --rm \
   <dockerhub-user>/audit-trail:latest
 ```
 
+You can also run the public DockerHub image with Compose:
+
+> **Security note:** this version does not include authentication or authorization yet. Keep the
+> backend API (`5000`) inside a private/internal network. The example below exposes only the UI
+> (`3000`) and keeps the API available to containers on the same Docker network. CORS is not auth.
+
+```yaml
+services:
+  audit-trail:
+    image: juaniviola/audit-trail:latest
+    container_name: audit-trail-app
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+
+      # Internal app ports
+      BACKEND_PORT: 5000
+      FRONTEND_PORT: 3000
+      INTERNAL_API_URL: http://127.0.0.1:5000
+
+      # Database
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      DB_DATABASE: audit_trail
+      DB_SSL: 'false'
+
+      # Startup behavior
+      WAIT_FOR_DB: 'true'
+      RUN_MIGRATIONS: 'true'
+
+      # CORS is not auth. Keep this narrow for browser usage.
+      CORS_ORIGINS: http://localhost:3000
+    ports:
+      # Expose the UI.
+      - '3000:3000'
+
+      # Do NOT expose the API publicly by default.
+      # If you need local-only API access for development, use:
+      # - '127.0.0.1:5000:5000'
+    expose:
+      # Available only to other containers on this Docker network.
+      - '5000'
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: audit-trail-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: audit_trail
+    volumes:
+      - audit_trail_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d audit_trail']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  audit_trail_pg_data:
+```
+
 Useful runtime variables:
 
 | Variable | Default | Description |
