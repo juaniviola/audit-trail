@@ -1,19 +1,19 @@
-## Qué cambia
+## What changes
 
 -
 
-## Por qué
+## Why
 
 -
 
-## Cómo se verificó
+## How it was verified
 
 -
 
 ## Checklist
 
-- [ ] El PR tiene alcance chico y claro.
-- [ ] Actualicé tests o expliqué por qué no aplica.
-- [ ] Actualicé documentación si cambió comportamiento, API, configuración o comandos.
-- [ ] Revisé riesgos, tradeoffs y casos borde.
-- [ ] Cumple el `CODE_OF_CONDUCT.md`.
+- [ ] The PR has a small, clear scope.
+- [ ] I updated tests or explained why it does not apply.
+- [ ] I updated documentation if behavior, API, configuration, or commands changed.
+- [ ] I reviewed risks, tradeoffs, and edge cases.
+- [ ] It complies with `CODE_OF_CONDUCT.md`.

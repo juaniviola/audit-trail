@@ -1,33 +1,33 @@
 name: Feature request
-description: Proponer una mejora o nueva capacidad
+description: Propose an improvement or new capability
 title: "feat: "
 labels: ["enhancement"]
 body:
   - type: textarea
     id: problem
     attributes:
-      label: Problema
-      description: Qué problema real resuelve esto.
+      label: Problem
+      description: What real problem this solves.
     validations:
       required: true
   - type: textarea
     id: proposal
     attributes:
-      label: Propuesta
-      description: Cómo imaginás que debería funcionar.
+      label: Proposal
+      description: How you think it should work.
     validations:
       required: true
   - type: textarea
     id: alternatives
     attributes:
-      label: Alternativas consideradas
-      description: Qué otras opciones evaluaste y sus tradeoffs.
+      label: Alternatives considered
+      description: What other options you evaluated and their tradeoffs.
     validations:
       required: false
   - type: textarea
     id: acceptance
     attributes:
-      label: Criterios de aceptación
+      label: Acceptance criteria
       placeholder: |
         - [ ] ...
         - [ ] ...

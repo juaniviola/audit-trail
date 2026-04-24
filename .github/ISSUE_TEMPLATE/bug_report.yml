@@ -1,23 +1,23 @@
 name: Bug report
-description: Reportar un bug reproducible
+description: Report a reproducible bug
 title: "fix: "
 labels: ["bug"]
 body:
   - type: markdown
     attributes:
       value: |
-        Gracias por reportar. Un bug sin reproducción es una hipótesis; con pasos concretos se vuelve accionable.
+        Thanks for reporting. A bug without reproduction is a hypothesis; with concrete steps it becomes actionable.
   - type: textarea
     id: description
     attributes:
-      label: Descripción
-      description: Qué pasó y qué esperabas que pasara.
+      label: Description
+      description: What happened and what you expected to happen.
     validations:
       required: true
   - type: textarea
     id: steps
     attributes:
-      label: Pasos para reproducir
+      label: Steps to reproduce
       placeholder: |
         1. ...
         2. ...
@@ -27,14 +27,14 @@ body:
   - type: textarea
     id: environment
     attributes:
-      label: Entorno
-      description: OS, Node, browser, Docker, commit o versión.
+      label: Environment
+      description: OS, Node, browser, Docker, commit, or version.
     validations:
       required: false
   - type: textarea
     id: extra
     attributes:
-      label: Contexto adicional
-      description: Logs, capturas o payloads mínimos y redactados.
+      label: Additional context
+      description: Logs, screenshots, or minimal redacted payloads.
     validations:
       required: false
