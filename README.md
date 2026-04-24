@@ -24,6 +24,81 @@ yarn --cwd frontend dev
 - Swagger: `http://localhost:5000/documentation`
 - Frontend: `http://localhost:3000`
 
+## Docker image
+
+This repository includes a single production image that contains both apps:
+
+- NestJS backend on port `5000`
+- Next.js frontend on port `3000`
+- Frontend API calls go through the same-origin proxy `/api/v1`, which forwards to the
+  backend through `INTERNAL_API_URL`.
+
+Build and run locally:
+
+```bash
+docker build -t audit-trail:local .
+docker compose up -d postgres
+docker run --rm \
+  --name audit-trail-app \
+  --network audit-trail_default \
+  -p 3000:3000 \
+  -p 5000:5000 \
+  -e DB_HOST=postgres \
+  -e DB_PORT=5432 \
+  -e DB_USERNAME=postgres \
+  -e DB_PASSWORD=postgres \
+  -e DB_DATABASE=audit_trail \
+  -e RUN_MIGRATIONS=true \
+  -e WAIT_FOR_DB=true \
+  audit-trail:local
+```
+
+Or run the full stack with Compose:
+
+```bash
+docker compose up -d --build
+```
+
+Publish to DockerHub:
+
+```bash
+docker login
+docker build -t <dockerhub-user>/audit-trail:latest .
+docker push <dockerhub-user>/audit-trail:latest
+```
+
+Consume from DockerHub:
+
+```bash
+docker run --rm \
+  --name audit-trail \
+  -p 3000:3000 \
+  -p 5000:5000 \
+  -e DB_HOST=<postgres-host> \
+  -e DB_PORT=5432 \
+  -e DB_USERNAME=<postgres-user> \
+  -e DB_PASSWORD=<postgres-password> \
+  -e DB_DATABASE=<postgres-database> \
+  -e DB_SSL=true \
+  -e RUN_MIGRATIONS=true \
+  <dockerhub-user>/audit-trail:latest
+```
+
+Useful runtime variables:
+
+| Variable | Default | Description |
+| -------- | ------- | ----------- |
+| `BACKEND_PORT` | `5000` | Port used by the NestJS process inside the container. |
+| `FRONTEND_PORT` | `3000` | Port used by the Next.js process inside the container. |
+| `INTERNAL_API_URL` | `http://127.0.0.1:5000` | Backend URL used by the frontend proxy route. |
+| `RUN_MIGRATIONS` | `false` | Runs compiled TypeORM migrations before starting the apps. |
+| `WAIT_FOR_DB` | same as `RUN_MIGRATIONS` | Waits until PostgreSQL is reachable before startup. |
+
+For the single-image deployment, prefer leaving `NEXT_PUBLIC_API_URL` unset. The frontend will use
+`/api/v1` and the Next.js server will proxy internally to `INTERNAL_API_URL`. Use
+`NEXT_PUBLIC_API_URL` only when you intentionally want the browser to call an externally reachable
+API URL directly.
+
 ## Audit events
 
 Single bounded context: `backend/src/audit-events` (DDD aggregate + use cases + Postgres
