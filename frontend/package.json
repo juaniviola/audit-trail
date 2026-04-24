@@ -31,5 +31,24 @@
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.7.3"
-  }
+  },
+  "description": "Audit Trail frontend built with Next.js and React.",
+  "license": "MIT",
+  "author": "Juani Viola",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/juaniviola/audit-trail.git",
+    "directory": "frontend"
+  },
+  "bugs": {
+    "url": "https://github.com/juaniviola/audit-trail/issues"
+  },
+  "homepage": "https://github.com/juaniviola/audit-trail#readme",
+  "keywords": [
+    "audit-trail",
+    "audit-log",
+    "request-logs",
+    "nextjs",
+    "react"
+  ]
 }

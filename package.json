@@ -2,7 +2,10 @@
   "name": "audit-trail",
   "version": "0.1.0",
   "private": true,
-  "workspaces": ["backend", "frontend"],
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
   "scripts": {
     "backend:dev": "yarn --cwd backend start:dev",
     "backend:test": "yarn --cwd backend test",
@@ -11,5 +14,27 @@
     "frontend:build": "yarn --cwd frontend build",
     "db:up": "docker compose up -d postgres",
     "db:down": "docker compose down"
-  }
+  },
+  "description": "Open source audit trail and request log monorepo built with NestJS, Next.js, PostgreSQL and DDD patterns.",
+  "license": "MIT",
+  "author": "Juani Viola",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/juaniviola/audit-trail.git"
+  },
+  "bugs": {
+    "url": "https://github.com/juaniviola/audit-trail/issues"
+  },
+  "homepage": "https://github.com/juaniviola/audit-trail#readme",
+  "keywords": [
+    "audit-trail",
+    "audit-log",
+    "request-logs",
+    "nestjs",
+    "nextjs",
+    "ddd",
+    "postgresql",
+    "typeorm"
+  ],
+  "packageManager": "yarn@1.22.19"
 }

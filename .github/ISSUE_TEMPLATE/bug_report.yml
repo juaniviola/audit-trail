@@ -1,0 +1,40 @@
+name: Bug report
+description: Reportar un bug reproducible
+title: "fix: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Gracias por reportar. Un bug sin reproducción es una hipótesis; con pasos concretos se vuelve accionable.
+  - type: textarea
+    id: description
+    attributes:
+      label: Descripción
+      description: Qué pasó y qué esperabas que pasara.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Pasos para reproducir
+      placeholder: |
+        1. ...
+        2. ...
+        3. ...
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Entorno
+      description: OS, Node, browser, Docker, commit o versión.
+    validations:
+      required: false
+  - type: textarea
+    id: extra
+    attributes:
+      label: Contexto adicional
+      description: Logs, capturas o payloads mínimos y redactados.
+    validations:
+      required: false

@@ -1,9 +1,33 @@
-# audit-trail
+# Audit Trail
 
-Monorepo for the Audit Trail service, modeled after the MBItrading DDD layout.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg)](CONTRIBUTING.md)
+
+Open source monorepo for receiving, storing and exploring audit events and request logs emitted by external services. It is designed for teams that need a centralized, searchable trail of **what happened**, **who attempted it**, **from where**, and **with which correlation/request context**.
+
+The project is modeled after a DDD/hexagonal layout:
 
 - `backend/` — NestJS 11 + TypeORM + PostgreSQL, structured in bounded contexts (shared kernel, audit events, request logs).
-- `frontend/` — Next.js 15 + React 19, same DDD module split (domain / application / infrastructure).
+- `frontend/` — Next.js 15 + React 19, same domain-oriented module split (domain / application / infrastructure).
+
+## Open source
+
+Audit Trail is distributed under the [MIT License](LICENSE). Contributions are welcome, but keep them intentional: understand the problem, keep the PR focused, and verify the affected area before asking for review.
+
+- Read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request.
+- Follow the [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) in all project spaces.
+- Report vulnerabilities privately using [SECURITY.md](SECURITY.md).
+- Use the GitHub issue templates for reproducible bugs and scoped feature proposals.
+
+## Table of contents
+
+- [Quick start](#quick-start)
+- [Docker image](#docker-image)
+- [Audit events](#audit-events)
+- [Request logs](#request-logs)
+- [Useful scripts](#useful-scripts)
+- [Contributing](#contributing)
+- [License](#license)
 
 ## Quick start
 
@@ -220,7 +244,7 @@ the emitter before POSTing.
 | GET    | `/request-logs`       | Search with criteria + pagination            |
 | GET    | `/request-logs/:id`   | Fetch full detail                            |
 
-### Useful scripts
+## Useful scripts
 
 ```bash
 yarn --cwd backend test                                # full unit suite
@@ -234,3 +258,11 @@ yarn --cwd frontend type-check
 yarn --cwd frontend lint
 yarn --cwd frontend build
 ```
+
+## Contributing
+
+Contributions are welcome. Start with [CONTRIBUTING.md](CONTRIBUTING.md), keep changes small, and include verification notes in your pull request. For behavioral expectations, see [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md). For sensitive security reports, follow [SECURITY.md](SECURITY.md).
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
