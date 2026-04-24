@@ -1,24 +1,24 @@
-# Política de seguridad
+# Security policy
 
-Si encontrás una vulnerabilidad en Audit Trail, por favor no la publiques en un issue.
+If you find a vulnerability in Audit Trail, please do not post it in a public issue.
 
-## Cómo reportar
+## How to report
 
-Contactá a los maintainers por un canal privado de GitHub e incluí:
+Contact the maintainers through a private GitHub channel and include:
 
-- Descripción del problema.
-- Pasos para reproducirlo.
-- Impacto esperado.
-- Versiones, commit o configuración afectada.
-- Mitigación sugerida, si la tenés.
+- Description of the issue.
+- Steps to reproduce.
+- Expected impact.
+- Affected versions, commit, or configuration.
+- Suggested mitigation, if you have one.
 
-## Alcance
+## Scope
 
-Este proyecto recibe eventos de auditoría y logs de request. Tratá como sensible cualquier dato que pueda incluir credenciales, tokens, datos personales, cuerpos de requests/responses o metadata operativa.
+This project receives audit events and request logs. Treat as sensitive any data that may include credentials, tokens, personal data, request/response bodies, or operational metadata.
 
-## Buenas prácticas para reportes públicos
+## Good practices for public reports
 
-- No incluyas secretos reales.
-- Redactá datos personales.
-- Usá ejemplos mínimos y sintéticos.
-- Indicá si el problema requiere acceso interno o si es explotable públicamente.
+- Do not include real secrets.
+- Redact personal data.
+- Use minimal, synthetic examples.
+- State whether the issue requires internal access or is publicly exploitable.

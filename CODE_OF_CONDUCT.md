@@ -1,33 +1,33 @@
-# Código de conducta
+# Code of conduct
 
-Audit Trail busca ser un proyecto abierto, colaborativo y profesional. La idea es simple: discutir fuerte las ideas, pero tratar bien a las personas.
+Audit Trail aims to be an open, collaborative, and professional project. The idea is simple: debate ideas forcefully, but treat people with respect.
 
-## Nuestro compromiso
+## Our pledge
 
-Como comunidad nos comprometemos a construir un espacio libre de acoso, discriminación y abuso para cualquier persona, sin importar edad, cuerpo, discapacidad, etnia, identidad o expresión de género, nivel de experiencia, nacionalidad, apariencia, religión u orientación sexual.
+As a community, we commit to building a space free of harassment, discrimination, and abuse for everyone, regardless of age, body, disability, ethnicity, gender identity or expression, level of experience, nationality, appearance, religion, or sexual orientation.
 
-## Comportamientos esperados
+## Expected behavior
 
-- Ser amable, claro y respetuoso.
-- Dar y recibir feedback técnico con evidencia.
-- Asumir buena intención, pero corregir problemas rápido.
-- Aceptar responsabilidad cuando uno se equivoca.
-- Priorizar lo que sea mejor para el proyecto y sus usuarios.
+- Be kind, clear, and respectful.
+- Give and receive technical feedback with evidence.
+- Assume good faith, but address problems quickly.
+- Take responsibility when you are wrong.
+- Prioritize what is best for the project and its users.
 
-## Comportamientos no aceptados
+## Unacceptable behavior
 
-- Insultos, ataques personales o comentarios degradantes.
-- Acoso público o privado.
-- Publicación de información privada de terceros sin permiso explícito.
-- Comentarios discriminatorios o sexualizados.
-- Trolling, provocación constante o sabotaje de discusiones técnicas.
+- Insults, personal attacks, or degrading comments.
+- Public or private harassment.
+- Publishing others’ private information without explicit permission.
+- Discriminatory or sexualized comments.
+- Trolling, constant provocation, or sabotage of technical discussions.
 
-## Reporte y aplicación
+## Reporting and enforcement
 
-Si ves o sufrís una conducta inaceptable, abrí un reporte privado contactando a los maintainers del proyecto por GitHub. Incluí contexto, enlaces y capturas si corresponde.
+If you see or experience unacceptable behavior, open a private report by contacting the project maintainers on GitHub. Include context, links, and screenshots if appropriate.
 
-Los maintainers pueden tomar medidas proporcionales al caso, incluyendo advertencias, cierre de issues o pull requests, bloqueo temporal o bloqueo permanente de participación en el proyecto.
+Maintainers may take measures proportional to the case, including warnings, closing issues or pull requests, temporary or permanent bans from project participation.
 
-## Alcance
+## Scope
 
-Este código aplica en issues, pull requests, discusiones, documentación, canales vinculados al proyecto y cualquier interacción pública o privada relacionada con Audit Trail.
+This code applies in issues, pull requests, discussions, documentation, channels linked to the project, and any public or private interaction related to Audit Trail.
