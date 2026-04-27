@@ -1,11 +1,14 @@
-import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, HttpCode, HttpStatus, Post, UseGuards } from '@nestjs/common';
+import { ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { ControllerResponse } from 'src/shared/infrastructure/filters/response.decorator';
+import { ApiKeyGuard } from 'src/shared/infrastructure/security/api-key.guard';
 
 import { RecordRequestLogService } from '../../application/record-request-log/recordRequestLog.service';
 import { RecordRequestLogDto } from '../dto/record-request-log.dto';
 
 @ApiTags('request-logs')
+@ApiSecurity('audit-trail-api-key')
+@UseGuards(ApiKeyGuard)
 @Controller('request-logs')
 export class RequestLogsPostController {
   constructor(private readonly recordRequestLog: RecordRequestLogService) {}
