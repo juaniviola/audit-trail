@@ -27,6 +27,7 @@ async function bootstrap() {
     .setTitle('Audit Trail API')
     .setDescription('Centralized audit event ingestion and querying.')
     .setVersion('1.0')
+    .addApiKey({ type: 'apiKey', name: 'x-audit-trail-api-key', in: 'header' }, 'audit-trail-api-key')
     .addTag('audit-events')
     .addTag('request-logs')
     .build();
