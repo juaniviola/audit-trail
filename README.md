@@ -48,14 +48,30 @@ yarn --cwd frontend dev
 - Swagger: `http://localhost:5000/documentation`
 - Frontend: `http://localhost:3000`
 
-Ingestion endpoints require an API key:
+Ingestion endpoints require signed API requests. The API key is **not** sent over the wire; clients
+send a `clientId`, timestamp and HMAC signature instead:
 
 ```bash
-export AUDIT_TRAIL_API_KEYS="local-dev-key"
+export AUDIT_TRAIL_CLIENT_IDS="orders-api"
+export AUDIT_TRAIL_API_KEYS="local-dev-secret"
+
+BODY='{"sourceApp":"orders-api","sourceEnv":"local","eventName":"order.created","action":"create","resourceType":"order","resourceId":"order-1","actorType":"system","occurredAt":"2026-04-27T16:00:00.000Z"}'
+TIMESTAMP="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+SIGNATURE="$(
+  node -e "const crypto = require('crypto');
+const [secret, method, path, timestamp, body] = process.argv.slice(1);
+const bodyHash = crypto.createHash('sha256').update(body).digest('hex');
+const canonical = [method, path, timestamp, bodyHash].join('\n');
+process.stdout.write('sha256=' + crypto.createHmac('sha256', secret).update(canonical).digest('hex'));" \
+    "local-dev-secret" "POST" "/v1/audit-events" "$TIMESTAMP" "$BODY"
+)"
+
 curl -X POST http://localhost:5000/v1/audit-events \
   -H 'Content-Type: application/json' \
-  -H 'x-audit-trail-api-key: local-dev-key' \
-  -d '{...}'
+  -H 'x-audit-trail-client-id: orders-api' \
+  -H "x-audit-trail-timestamp: $TIMESTAMP" \
+  -H "x-audit-trail-signature: $SIGNATURE" \
+  -d "$BODY"
 ```
 
 ## Docker image
@@ -72,11 +88,15 @@ Build and run locally:
 ```bash
 docker build -t audit-trail:local .
 docker compose up -d postgres
+
+export AUDIT_TRAIL_CLIENT_IDS="orders-api"
+export AUDIT_TRAIL_API_KEYS="local-dev-secret"
+
 docker run --rm \
   --name audit-trail-app \
   --network audit-trail_default \
   -p 3000:3000 \
-  -p 5000:5000 \
+  -p 127.0.0.1:5000:5000 \
   -e DB_HOST=postgres \
   -e DB_PORT=5432 \
   -e DB_USERNAME=postgres \
@@ -84,12 +104,17 @@ docker run --rm \
   -e DB_DATABASE=audit_trail \
   -e RUN_MIGRATIONS=true \
   -e WAIT_FOR_DB=true \
+  -e AUDIT_TRAIL_CLIENT_IDS="$AUDIT_TRAIL_CLIENT_IDS" \
+  -e AUDIT_TRAIL_API_KEYS="$AUDIT_TRAIL_API_KEYS" \
+  -e AUDIT_TRAIL_SIGNATURE_TOLERANCE_SECONDS=300 \
   audit-trail:local
 ```
 
 Or run the full stack with Compose:
 
 ```bash
+export AUDIT_TRAIL_CLIENT_IDS="orders-api"
+export AUDIT_TRAIL_API_KEYS="local-dev-secret"
 docker compose up -d --build
 ```
 
@@ -107,7 +132,7 @@ Consume from DockerHub:
 docker run --rm \
   --name audit-trail \
   -p 3000:3000 \
-  -p 5000:5000 \
+  -p 127.0.0.1:5000:5000 \
   -e DB_HOST=<postgres-host> \
   -e DB_PORT=5432 \
   -e DB_USERNAME=<postgres-user> \
@@ -115,13 +140,16 @@ docker run --rm \
   -e DB_DATABASE=<postgres-database> \
   -e DB_SSL=true \
   -e RUN_MIGRATIONS=true \
+  -e AUDIT_TRAIL_CLIENT_IDS=<client-id> \
+  -e AUDIT_TRAIL_API_KEYS=<api-key-secret> \
+  -e AUDIT_TRAIL_SIGNATURE_TOLERANCE_SECONDS=300 \
   <dockerhub-user>/audit-trail:latest
 ```
 
 You can also run the public DockerHub image with Compose:
 
-> **Security note:** ingestion endpoints require `x-audit-trail-api-key`, configured through
-> `AUDIT_TRAIL_API_KEYS`. Still keep the backend API (`5000`) inside a private/internal network
+> **Security note:** ingestion endpoints require signed requests configured through
+> `AUDIT_TRAIL_CLIENT_IDS` and `AUDIT_TRAIL_API_KEYS`. Still keep the backend API (`5000`) inside a private/internal network
 > whenever possible. The example below exposes only the UI (`3000`) and keeps the API available to
 > containers on the same Docker network. CORS is not auth.
 
@@ -157,9 +185,14 @@ services:
       # CORS is not auth. Keep this narrow for browser usage.
       CORS_ORIGINS: http://localhost:3000
 
-      # Comma-separated API keys for POST /v1/audit-events and POST /v1/request-logs.
+      # Comma-separated client IDs and API keys for POST /v1/audit-events and POST /v1/request-logs.
+      # Values are mapped by position:
+      # - AUDIT_TRAIL_CLIENT_IDS=orders-api,crm-api
+      # - AUDIT_TRAIL_API_KEYS=orders-secret,crm-secret
       # Set this through your secret manager or a private .env file.
+      AUDIT_TRAIL_CLIENT_IDS: ${AUDIT_TRAIL_CLIENT_IDS}
       AUDIT_TRAIL_API_KEYS: ${AUDIT_TRAIL_API_KEYS}
+      AUDIT_TRAIL_SIGNATURE_TOLERANCE_SECONDS: ${AUDIT_TRAIL_SIGNATURE_TOLERANCE_SECONDS:-300}
     ports:
       # Expose the UI.
       - '3000:3000'
@@ -200,7 +233,9 @@ Useful runtime variables:
 | `INTERNAL_API_URL` | `http://127.0.0.1:5000` | Backend URL used by the frontend proxy route. |
 | `RUN_MIGRATIONS` | `false` | Runs compiled TypeORM migrations before starting the apps. |
 | `WAIT_FOR_DB` | same as `RUN_MIGRATIONS` | Waits until PostgreSQL is reachable before startup. |
-| `AUDIT_TRAIL_API_KEYS` | required for ingestion | Comma-separated API keys accepted by `POST /v1/audit-events` and `POST /v1/request-logs`. |
+| `AUDIT_TRAIL_CLIENT_IDS` | required for ingestion | Comma-separated client IDs accepted by signed ingestion endpoints. Must align by position with `AUDIT_TRAIL_API_KEYS`. |
+| `AUDIT_TRAIL_API_KEYS` | required for ingestion | Comma-separated API key secrets used to verify signed ingestion requests. Must align by position with `AUDIT_TRAIL_CLIENT_IDS`. |
+| `AUDIT_TRAIL_SIGNATURE_TOLERANCE_SECONDS` | `300` | Maximum clock skew accepted for signed ingestion requests. |
 
 For the single-image deployment, prefer leaving `NEXT_PUBLIC_API_URL` unset. The frontend will use
 `/api/v1` and the Next.js server will proxy internally to `INTERNAL_API_URL`. Use
@@ -228,7 +263,7 @@ through the in-memory event bus.
 
 | Method | Path                  | Description                                  |
 | ------ | --------------------- | -------------------------------------------- |
-| POST   | `/audit-events`       | Record a new audit event. Requires `x-audit-trail-api-key` |
+| POST   | `/audit-events`       | Record a new audit event. Requires signed ingestion headers |
 | GET    | `/audit-events`       | Search with criteria + pagination            |
 | GET    | `/audit-events/:id`   | Fetch full detail (incl. before/after/diff)  |
 
@@ -256,7 +291,7 @@ the emitter before POSTing.
 
 | Method | Path                  | Description                                  |
 | ------ | --------------------- | -------------------------------------------- |
-| POST   | `/request-logs`       | Record a request log. Requires `x-audit-trail-api-key` |
+| POST   | `/request-logs`       | Record a request log. Requires signed ingestion headers |
 | GET    | `/request-logs`       | Search with criteria + pagination            |
 | GET    | `/request-logs/:id`   | Fetch full detail                            |
 
