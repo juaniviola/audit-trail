@@ -48,6 +48,16 @@ yarn --cwd frontend dev
 - Swagger: `http://localhost:5000/documentation`
 - Frontend: `http://localhost:3000`
 
+Ingestion endpoints require an API key:
+
+```bash
+export AUDIT_TRAIL_API_KEYS="local-dev-key"
+curl -X POST http://localhost:5000/v1/audit-events \
+  -H 'Content-Type: application/json' \
+  -H 'x-audit-trail-api-key: local-dev-key' \
+  -d '{...}'
+```
+
 ## Docker image
 
 This repository includes a single production image that contains both apps:
@@ -110,9 +120,10 @@ docker run --rm \
 
 You can also run the public DockerHub image with Compose:
 
-> **Security note:** this version does not include authentication or authorization yet. Keep the
-> backend API (`5000`) inside a private/internal network. The example below exposes only the UI
-> (`3000`) and keeps the API available to containers on the same Docker network. CORS is not auth.
+> **Security note:** ingestion endpoints require `x-audit-trail-api-key`, configured through
+> `AUDIT_TRAIL_API_KEYS`. Still keep the backend API (`5000`) inside a private/internal network
+> whenever possible. The example below exposes only the UI (`3000`) and keeps the API available to
+> containers on the same Docker network. CORS is not auth.
 
 ```yaml
 services:
@@ -145,6 +156,10 @@ services:
 
       # CORS is not auth. Keep this narrow for browser usage.
       CORS_ORIGINS: http://localhost:3000
+
+      # Comma-separated API keys for POST /v1/audit-events and POST /v1/request-logs.
+      # Set this through your secret manager or a private .env file.
+      AUDIT_TRAIL_API_KEYS: ${AUDIT_TRAIL_API_KEYS}
     ports:
       # Expose the UI.
       - '3000:3000'
@@ -185,6 +200,7 @@ Useful runtime variables:
 | `INTERNAL_API_URL` | `http://127.0.0.1:5000` | Backend URL used by the frontend proxy route. |
 | `RUN_MIGRATIONS` | `false` | Runs compiled TypeORM migrations before starting the apps. |
 | `WAIT_FOR_DB` | same as `RUN_MIGRATIONS` | Waits until PostgreSQL is reachable before startup. |
+| `AUDIT_TRAIL_API_KEYS` | required for ingestion | Comma-separated API keys accepted by `POST /v1/audit-events` and `POST /v1/request-logs`. |
 
 For the single-image deployment, prefer leaving `NEXT_PUBLIC_API_URL` unset. The frontend will use
 `/api/v1` and the Next.js server will proxy internally to `INTERNAL_API_URL`. Use
@@ -212,7 +228,7 @@ through the in-memory event bus.
 
 | Method | Path                  | Description                                  |
 | ------ | --------------------- | -------------------------------------------- |
-| POST   | `/audit-events`       | Record a new audit event                     |
+| POST   | `/audit-events`       | Record a new audit event. Requires `x-audit-trail-api-key` |
 | GET    | `/audit-events`       | Search with criteria + pagination            |
 | GET    | `/audit-events/:id`   | Fetch full detail (incl. before/after/diff)  |
 
@@ -240,7 +256,7 @@ the emitter before POSTing.
 
 | Method | Path                  | Description                                  |
 | ------ | --------------------- | -------------------------------------------- |
-| POST   | `/request-logs`       | Record a request log (from external services) |
+| POST   | `/request-logs`       | Record a request log. Requires `x-audit-trail-api-key` |
 | GET    | `/request-logs`       | Search with criteria + pagination            |
 | GET    | `/request-logs/:id`   | Fetch full detail                            |
 

@@ -12,11 +12,15 @@ The frontend calls the backend through the internal same-origin proxy `/api/v1`,
 
 ## ⚠️ Security disclaimer — read this first
 
-This version **does not include authentication or authorization yet**.
+This version protects backend ingestion endpoints with an API key, but it does **not** include full authentication or authorization yet.
 
-That means the API is currently open to whoever can reach it. There is no API key, no bearer token, no RBAC, no tenant-level access control, and no built-in TLS termination.
+That means:
 
-Security is planned for a future version, but **for now you must not expose this service directly to the public internet**.
+- `POST /v1/audit-events` and `POST /v1/request-logs` require `x-audit-trail-api-key`.
+- Read endpoints are still reachable by whoever can reach the backend.
+- There is no bearer token, no RBAC, no tenant-level access control, and no built-in TLS termination.
+
+Security will keep improving, but **for now you must not expose this service directly to the public internet**.
 
 Recommended deployment model:
 
@@ -24,6 +28,7 @@ Recommended deployment model:
 - Only allow trusted backend services to reach the API.
 - Put it behind a private reverse proxy, gateway, firewall, or service mesh if needed.
 - Do not publish port `5000` publicly unless you add your own protection layer.
+- Set `AUDIT_TRAIL_API_KEYS` through secrets, environment injection, or a private `.env` file.
 - Remember: **CORS is not security**. CORS only affects browsers; it does not protect the API from direct HTTP clients.
 
 If you need to expose the frontend UI, expose only port `3000` and keep the backend API reachable through internal networking.
@@ -65,6 +70,10 @@ services:
 
       # CORS is not auth. Keep this narrow for browser usage.
       CORS_ORIGINS: http://localhost:3000
+
+      # Comma-separated API keys for POST /v1/audit-events and POST /v1/request-logs.
+      # Set this through your secret manager or a private .env file.
+      AUDIT_TRAIL_API_KEYS: ${AUDIT_TRAIL_API_KEYS}
     ports:
       # Expose the UI.
       - '3000:3000'
@@ -99,6 +108,7 @@ volumes:
 Start it:
 
 ```bash
+export AUDIT_TRAIL_API_KEYS="replace-with-a-long-random-secret"
 docker compose up -d
 ```
 
@@ -154,6 +164,9 @@ services:
       WAIT_FOR_DB: 'true'
       RUN_MIGRATIONS: 'true'
       CORS_ORIGINS: https://your-internal-ui-domain.example
+
+      # Comma-separated API keys for POST /v1/audit-events and POST /v1/request-logs.
+      AUDIT_TRAIL_API_KEYS: ${AUDIT_TRAIL_API_KEYS}
     ports:
       - '3000:3000'
     expose:
@@ -179,6 +192,7 @@ services:
 | `RUN_MIGRATIONS` | `false` | Runs TypeORM migrations before starting the apps. Recommended on first startup. |
 | `CORS_ORIGINS` | `http://localhost:3000` | Comma-separated browser origins allowed by the backend. This is not authentication. |
 | `SWAGGER_PATH` | `documentation` | Swagger route path. |
+| `AUDIT_TRAIL_API_KEYS` | required for ingestion | Comma-separated API keys accepted by `POST /v1/audit-events` and `POST /v1/request-logs`. |
 
 ---
 
@@ -190,7 +204,7 @@ The backend API is versioned under `/v1`.
 
 | Method | Path | Description |
 | --- | --- | --- |
-| `POST` | `/v1/audit-events` | Record a new audit event. |
+| `POST` | `/v1/audit-events` | Record a new audit event. Requires `x-audit-trail-api-key`. |
 | `GET` | `/v1/audit-events` | Search audit events with filters and pagination. |
 | `GET` | `/v1/audit-events/:id` | Fetch one audit event by ID. |
 
@@ -198,7 +212,7 @@ The backend API is versioned under `/v1`.
 
 | Method | Path | Description |
 | --- | --- | --- |
-| `POST` | `/v1/request-logs` | Record an HTTP request log from an external service. |
+| `POST` | `/v1/request-logs` | Record an HTTP request log from an external service. Requires `x-audit-trail-api-key`. |
 | `GET` | `/v1/request-logs` | Search request logs with filters and pagination. |
 | `GET` | `/v1/request-logs/:id` | Fetch one request log by ID. |
 
@@ -221,7 +235,7 @@ Trusted service C ─┘                         │
                                              └── frontend:3000, optional internal UI
 ```
 
-Avoid this until authentication is added:
+Avoid this until full access control and a public-exposure hardening layer are in place:
 
 ```text
 Public internet ──> audit-trail:5000  ❌
@@ -242,6 +256,7 @@ Internal services ──> Docker/Kubernetes private network ──> audit-trail:
 - For production, prefer running only one instance with `RUN_MIGRATIONS=true`, then run other replicas with `RUN_MIGRATIONS=false`.
 - Persist PostgreSQL data with a Docker volume or use a managed PostgreSQL service.
 - Do not store database passwords directly in Compose files for production. Use secrets, environment injection, or your platform's secret manager.
+- Do not store `AUDIT_TRAIL_API_KEYS` directly in Compose files for production. Treat API keys as secrets.
 - If you publish port `5000`, protect it with firewall rules, VPN, API gateway, or reverse proxy authentication.
 
 ---
@@ -251,4 +266,3 @@ Internal services ──> Docker/Kubernetes private network ──> audit-trail:
 ```bash
 docker pull juaniviola/audit-trail:latest
 ```
-
