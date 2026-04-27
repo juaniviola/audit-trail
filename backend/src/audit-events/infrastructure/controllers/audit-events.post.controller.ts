@@ -1,11 +1,14 @@
-import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, HttpCode, HttpStatus, Post, UseGuards } from '@nestjs/common';
+import { ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { ControllerResponse } from 'src/shared/infrastructure/filters/response.decorator';
+import { ApiKeyGuard } from 'src/shared/infrastructure/security/api-key.guard';
 
 import { RecordAuditEventService } from '../../application/record-audit-event/recordAuditEvent.service';
 import { RecordAuditEventDto } from '../dto/record-audit-event.dto';
 
 @ApiTags('audit-events')
+@ApiSecurity('audit-trail-api-key')
+@UseGuards(ApiKeyGuard)
 @Controller('audit-events')
 export class AuditEventsPostController {
   constructor(private readonly recordAuditEvent: RecordAuditEventService) {}
