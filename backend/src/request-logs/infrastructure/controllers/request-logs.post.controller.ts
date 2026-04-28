@@ -1,11 +1,31 @@
-import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, HttpCode, HttpStatus, Post, UseGuards } from '@nestjs/common';
+import { ApiHeader, ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { ControllerResponse } from 'src/shared/infrastructure/filters/response.decorator';
+import { ApiKeyGuard } from 'src/shared/infrastructure/security/api-key.guard';
 
 import { RecordRequestLogService } from '../../application/record-request-log/recordRequestLog.service';
 import { RecordRequestLogDto } from '../dto/record-request-log.dto';
 
 @ApiTags('request-logs')
+@ApiSecurity('audit-trail-client-id')
+@ApiSecurity('audit-trail-timestamp')
+@ApiSecurity('audit-trail-signature')
+@ApiHeader({
+  name: 'x-audit-trail-client-id',
+  required: true,
+  description: 'Client id configured in AUDIT_TRAIL_CLIENT_IDS.',
+})
+@ApiHeader({
+  name: 'x-audit-trail-timestamp',
+  required: true,
+  description: 'ISO-8601 request timestamp used for replay protection.',
+})
+@ApiHeader({
+  name: 'x-audit-trail-signature',
+  required: true,
+  description: 'HMAC-SHA256 signature with sha256=<hex> format.',
+})
+@UseGuards(ApiKeyGuard)
 @Controller('request-logs')
 export class RequestLogsPostController {
   constructor(private readonly recordRequestLog: RecordRequestLogService) {}

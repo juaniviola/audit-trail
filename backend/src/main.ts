@@ -8,6 +8,7 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     bufferLogs: true,
+    rawBody: true,
   });
   app.useLogger(app.get(Logger));
 
@@ -27,6 +28,9 @@ async function bootstrap() {
     .setTitle('Audit Trail API')
     .setDescription('Centralized audit event ingestion and querying.')
     .setVersion('1.0')
+    .addApiKey({ type: 'apiKey', name: 'x-audit-trail-client-id', in: 'header' }, 'audit-trail-client-id')
+    .addApiKey({ type: 'apiKey', name: 'x-audit-trail-timestamp', in: 'header' }, 'audit-trail-timestamp')
+    .addApiKey({ type: 'apiKey', name: 'x-audit-trail-signature', in: 'header' }, 'audit-trail-signature')
     .addTag('audit-events')
     .addTag('request-logs')
     .build();
